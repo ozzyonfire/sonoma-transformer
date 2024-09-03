@@ -1,0 +1,4 @@
+# ignore the files directory
+/files/
+files/
+.env
