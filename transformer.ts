@@ -54,7 +54,8 @@ export function transformCSVString(inputString: string): string {
       shipping_phone: shipToPhone,
       email: shipToEmail,
       shipping_line_title: shippingMethod,
-      note_attributes: `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
+      note_attributes:
+        `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
     });
 
     // line item fields
