@@ -8,5 +8,11 @@
     "@std/assert": "jsr:@std/assert@1",
     "@std/cli": "jsr:@std/cli@^1.0.4",
     "@std/csv": "jsr:@std/csv@^1.0.2"
+  },
+  "deploy": {
+    "project": "385c6f2b-8d70-4214-9e41-be0c75c95a8e",
+    "exclude": ["**/files", "**/node_modules"],
+    "include": [],
+    "entrypoint": "main.ts"
   }
 }
