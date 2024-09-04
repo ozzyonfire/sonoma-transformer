@@ -25,7 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (file instanceof File) {
       const fileContents = await file.text();
       try {
-        const result = await transformCSVString(fileContents);
+        const result = transformCSVString(fileContents);
         return new Response(result, {
           status: 200,
           headers: {
