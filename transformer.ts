@@ -54,9 +54,16 @@ export function transformCSVString(inputString: string): string {
       shipping_phone: shipToPhone,
       email: shipToEmail,
       shipping_line_title: shippingMethod,
-      note_attributes:
-        `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
+      note_attributes: `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
     });
+
+    const fulfillmentSKUItems: {
+      id: string;
+      sku: string;
+      quantity: number;
+      item_title: string;
+      properties: string;
+    }[] = [];
 
     // line item fields
     for (let i = 1; i <= 24; i++) {
@@ -90,7 +97,37 @@ export function transformCSVString(inputString: string): string {
         item_title: description,
         properties: propertyString,
       });
+
+      // add the quantity to SKU mapping
+      const shippingSKU = quantityToSkuMap.get(parseInt(quantity));
+      if (shippingSKU) {
+        const existingItem = fulfillmentSKUItems.find(
+          (item) => item.sku === shippingSKU
+        );
+
+        if (existingItem) {
+          existingItem.quantity++;
+        } else {
+          fulfillmentSKUItems.push({
+            id,
+            sku: shippingSKU,
+            quantity: 1,
+            item_title: `Shipping for ${quantity} bottle${
+              parseInt(quantity) > 1 ? "s" : ""
+            }`,
+            properties: "",
+          });
+        }
+      }
     }
+
+    // add the shipping line items to the order
+    fulfillmentSKUItems.forEach((item) => {
+      transformedOrderSheet.push({
+        ...item,
+        quantity: item.quantity.toString(),
+      });
+    });
   }
 
   const columns: (keyof TransformedData)[] = [
@@ -118,4 +155,10 @@ export function transformCSVString(inputString: string): string {
     headers: true,
     columns,
   });
+}
+
+const quantityToSkuMap = new Map<number, string>();
+
+for (let i = 1; i <= 24; i++) {
+  quantityToSkuMap.set(i, `WF${i}P`);
 }
