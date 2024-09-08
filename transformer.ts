@@ -104,18 +104,15 @@ export function transformCSVString(inputString: string): string {
     }
 
     // add the quantity to SKU mapping
-    const shippingSKU = quantityToSkuMap.get(totalQuantity);
-    if (shippingSKU) {
-      fulfillmentSKUItems.push({
-        id,
-        sku: shippingSKU,
-        quantity: 1,
-        item_title: `Shipping for ${totalQuantity} bottle${
-          totalQuantity > 1 ? "s" : ""
-        }`,
-        properties: "",
-      });
-    }
+    transformedOrderSheet.push({
+      id,
+      sku: `WF${totalQuantity}P`,
+      quantity: "1",
+      item_title: `Shipping for ${totalQuantity} bottle${
+        totalQuantity > 1 ? "s" : ""
+      }`,
+      properties: "",
+    });
   }
 
   const columns: (keyof TransformedData)[] = [
@@ -143,10 +140,4 @@ export function transformCSVString(inputString: string): string {
     headers: true,
     columns,
   });
-}
-
-const quantityToSkuMap = new Map<number, string>();
-
-for (let i = 1; i <= 24; i++) {
-  quantityToSkuMap.set(i, `WF${i}P`);
 }
