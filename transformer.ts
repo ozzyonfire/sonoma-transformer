@@ -57,14 +57,6 @@ export function transformCSVString(inputString: string): string {
       note_attributes: `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
     });
 
-    const fulfillmentSKUItems: {
-      id: string;
-      sku: string;
-      quantity: number;
-      item_title: string;
-      properties: string;
-    }[] = [];
-
     let totalQuantity = 0;
 
     // line item fields
