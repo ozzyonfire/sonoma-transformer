@@ -96,15 +96,28 @@ export function transformCSVString(inputString: string): string {
     }
 
     // add the quantity to SKU mapping
-    transformedOrderSheet.push({
-      id,
-      sku: `WF${totalQuantity}P`,
-      quantity: "1",
-      item_title: `Shipping for ${totalQuantity} bottle${
-        totalQuantity > 1 ? "s" : ""
-      }`,
-      properties: "",
-    });
+    if (totalQuantity === 24) {
+      // 24 bottles is 2 cases of 12 bottles
+      transformedOrderSheet.push({
+        id,
+        sku: `WF${12}P`,
+        quantity: "2",
+        item_title: `Shipping for ${totalQuantity} bottle${
+          totalQuantity > 1 ? "s" : ""
+        }`,
+        properties: "",
+      });
+    } else {
+      transformedOrderSheet.push({
+        id,
+        sku: `WF${totalQuantity}P`,
+        quantity: "1",
+        item_title: `Shipping for ${totalQuantity} bottle${
+          totalQuantity > 1 ? "s" : ""
+        }`,
+        properties: "",
+      });
+    }
   }
 
   const columns: (keyof TransformedData)[] = [
