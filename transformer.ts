@@ -1,7 +1,10 @@
 import { DataItem, parse, stringify } from "@std/csv";
 import { TransformedData } from "./shopify-order.ts";
 
-export function transformCSVString(inputString: string): string {
+export function transformCSVString(
+  inputString: string,
+  customerLookup: string
+): string {
   // const csv = await Deno.readTextFile(filePath);
 
   // the CSV order template contains a header row, and each order is on a new row - the line items are split into columns
@@ -41,6 +44,7 @@ export function transformCSVString(inputString: string): string {
     // add the initial row to the order
     transformedOrderSheet.push({
       id,
+      customer_query: customerLookup,
       processed_at: orderDate,
       shipping_first_name: shipToFirstName,
       shipping_last_name: shipToLastName,
@@ -52,9 +56,8 @@ export function transformCSVString(inputString: string): string {
       shipping_zip_postal_code: shipToZip,
       shipping_country: shipToCountry || "US",
       shipping_phone: shipToPhone,
-      email: shipToEmail,
       shipping_line_title: shippingMethod,
-      note_attributes: `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}`,
+      note_attributes: `Shipping Instructions:${shippingInstructions}\nGift Message:${giftMessage}\nShipping Email:${shipToEmail}`,
     });
 
     let totalQuantity = 0;
@@ -95,25 +98,30 @@ export function transformCSVString(inputString: string): string {
       totalQuantity += parseInt(quantity);
     }
 
-    // add the quantity to SKU mapping
-    if (totalQuantity === 24) {
-      // 24 bottles is 2 cases of 12 bottles
+    // the quantity is the total number of bottles in the order
+    // we need to map this to the correct SKU
+    // the max number of bottles in a case is 12, so we need to break the total quantity into cases
+
+    const cases = Math.floor(totalQuantity / 12);
+    const looseBottles = totalQuantity % 12;
+
+    if (cases > 0) {
       transformedOrderSheet.push({
         id,
         sku: `WF${12}P`,
-        quantity: "2",
-        item_title: `Shipping for ${totalQuantity} bottle${
-          totalQuantity > 1 ? "s" : ""
-        }`,
+        quantity: cases.toString(),
+        item_title: `Case of ${12} bottles`,
         properties: "",
       });
-    } else {
+    }
+
+    if (looseBottles > 0) {
       transformedOrderSheet.push({
         id,
-        sku: `WF${totalQuantity}P`,
-        quantity: "1",
-        item_title: `Shipping for ${totalQuantity} bottle${
-          totalQuantity > 1 ? "s" : ""
+        sku: `WF${looseBottles}P`,
+        quantity: looseBottles.toString(),
+        item_title: `Shipping for ${looseBottles} bottle${
+          looseBottles > 1 ? "s" : ""
         }`,
         properties: "",
       });
@@ -122,6 +130,7 @@ export function transformCSVString(inputString: string): string {
 
   const columns: (keyof TransformedData)[] = [
     "id",
+    "customer_query",
     "processed_at",
     "shipping_first_name",
     "shipping_last_name",
@@ -132,7 +141,6 @@ export function transformCSVString(inputString: string): string {
     "shipping_zip_postal_code",
     "shipping_country",
     "shipping_phone",
-    "email",
     "shipping_line_title",
     "note_attributes",
     "sku",

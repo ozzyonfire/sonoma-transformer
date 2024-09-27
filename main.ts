@@ -17,6 +17,9 @@ const handler = async (req: Request): Promise<Response> => {
   if (pathname === "/transform") {
     const formData = await req.formData();
     const file = formData.get("file");
+    const customerLookup = formData.get("customerLookup") as string;
+
+    console.log("customerLookup", customerLookup);
 
     if (!file) {
       return new Response("Please provide a file", { status: 400 });
@@ -25,7 +28,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (file instanceof File) {
       const fileContents = await file.text();
       try {
-        const result = transformCSVString(fileContents);
+        const result = transformCSVString(fileContents, customerLookup || "");
         return new Response(result, {
           status: 200,
           headers: {
@@ -42,4 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
   return new Response("Not found", { status: 404 });
 };
 
-Deno.serve({ port }, handler);
+if (import.meta.main) {
+  console.log("pid", Deno.pid);
+  Deno.serve({ port }, handler);
+}

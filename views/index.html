@@ -5,11 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sonoma CSV Transformer</title>
     <style>
+      /* css reset */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f9;
         padding: 30px;
       }
+
       h1 {
         text-align: center;
         color: #333;
@@ -18,6 +27,7 @@
       .container {
         max-width: 600px;
         margin: 0 auto;
+        margin-top: 20px;
         padding: 16px;
         background: white;
         border-radius: 8px;
@@ -26,7 +36,7 @@
 
       label {
         display: block;
-        margin-bottom: 10px;
+        margin-bottom: 4px;
         font-weight: bold;
       }
 
@@ -45,6 +55,7 @@
         font-size: 16px;
         cursor: pointer;
       }
+
       input[type="submit"]:hover {
         background-color: #218838;
       }
@@ -55,18 +66,59 @@
         margin-bottom: 10px;
         padding: 10px;
       }
+
+      .input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      .help-text {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+        padding-left: 4px;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
     </style>
   </head>
   <body>
     <h1>Sonoma CSV Transformer</h1>
     <div class="container">
       <form action="/transform" method="POST" enctype="multipart/form-data">
-        <label for="csvFile">Choose a CSV file:</label>
-        <div class="input-container">
-          <input type="file" id="csvFile" name="file" accept=".csv" required />
+        <div>
+          <label for="customerLookup">Customer Lookup</label>
+          <input
+          class="input"
+          type="text"
+          id="customerLookup"
+          name="customerLookup"
+          />
+          <div class="help-text">
+            <p>This is the customer query that will be used to find the customer in Shopify.</p>
+            <p>It can be a first or last name, phone number, or email address.</p>
+          </div>
+        </div>
+        <div>
+          <label for="csvFile">Choose a CSV file:</label>
+          <input
+          class="input"
+          type="file"
+          id="csvFile"
+          name="file"
+          accept=".csv"
+          required
+          />
         </div>
         <button type="submit">Upload and Transform</button>
       </form>
+      </div>  
     </div>
   </body>
 </html>
