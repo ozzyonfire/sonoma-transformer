@@ -14,6 +14,38 @@ export function transformCSVString(
     trimLeadingSpace: true,
   });
 
+  const transformedOrderSheet = transformRawData(data, customerLookup);
+  const columns: (keyof TransformedData)[] = [
+    "id",
+    "customer_query",
+    "processed_at",
+    "shipping_first_name",
+    "shipping_last_name",
+    "shipping_address_1",
+    "shipping_address_2",
+    "shipping_city",
+    "shipping_state_province",
+    "shipping_zip_postal_code",
+    "shipping_country",
+    "shipping_phone",
+    "shipping_line_title",
+    "note_attributes",
+    "sku",
+    "quantity",
+    "item_title",
+    "properties",
+  ];
+
+  return stringify(transformedOrderSheet as DataItem[], {
+    headers: true,
+    columns,
+  });
+}
+
+export function transformRawData(
+  data: Record<string, string>[],
+  customerLookup?: string
+) {
   // this is the newly transformed data from the CSV order template
   const transformedOrderSheet: TransformedData[] = [];
 
@@ -41,10 +73,14 @@ export function transformCSVString(
     // extra properties
     const giftMessage = row["Gift Message"];
 
+    const customerQuery = customerLookup
+      ? customerLookup
+      : row["Customer Query"];
+
     // add the initial row to the order
     transformedOrderSheet.push({
       id,
-      customer_query: customerLookup,
+      customer_query: customerQuery,
       processed_at: orderDate,
       shipping_first_name: shipToFirstName,
       shipping_last_name: shipToLastName,
@@ -128,29 +164,5 @@ export function transformCSVString(
     }
   }
 
-  const columns: (keyof TransformedData)[] = [
-    "id",
-    "customer_query",
-    "processed_at",
-    "shipping_first_name",
-    "shipping_last_name",
-    "shipping_address_1",
-    "shipping_address_2",
-    "shipping_city",
-    "shipping_state_province",
-    "shipping_zip_postal_code",
-    "shipping_country",
-    "shipping_phone",
-    "shipping_line_title",
-    "note_attributes",
-    "sku",
-    "quantity",
-    "item_title",
-    "properties",
-  ];
-
-  return stringify(transformedOrderSheet as DataItem[], {
-    headers: true,
-    columns,
-  });
+  return transformedOrderSheet;
 }

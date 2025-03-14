@@ -1,4 +1,4 @@
-import { transformCSVString } from "./transformer.ts";
+import { transformCSVString, transformRawData } from "./transformer.ts";
 
 const port = 8080;
 
@@ -37,9 +37,50 @@ const handler = async (req: Request): Promise<Response> => {
           },
         });
       } catch (error) {
-        return new Response(error.message, { status: 500 });
+        if (error instanceof Error) {
+          return new Response(error.message, { status: 500 });
+        }
+        return new Response("Internal server error", { status: 500 });
       }
     }
+  }
+
+  if (pathname === "/preprocessor") {
+    // Add CORS headers for preflight requests
+    if (req.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "POST, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Max-Age": "86400",
+        },
+      });
+    }
+
+    // body contains a json object with the following properties:
+    // data: Record<string, string>[]
+
+    const body = await req.json();
+    const data = body.data;
+
+    const result = transformRawData(data);
+
+    const responseBody = {
+      data: result,
+      autoMap: true,
+    };
+
+    return new Response(JSON.stringify(responseBody), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
   }
 
   return new Response("Not found", { status: 404 });
